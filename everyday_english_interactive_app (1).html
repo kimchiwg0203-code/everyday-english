@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Everyday English - 일상 영어 회화 학습</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 3D Flip Card Effect */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-full flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Header / Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Title in Korean -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-tr from-brand-600 to-indigo-500 text-white p-2.5 rounded-xl shadow-md shadow-brand-500/20">
+                        <i class="fa-solid fa-language text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-lg sm:text-xl text-slate-900 tracking-tight">일상 영어 회화 (Everyday English)</h1>
+                        <p class="text-xs font-medium text-slate-500 hidden sm:block">3개국어 다국어 학습 앱 (영어 • 한국어 • 베트남어)</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs in Korean -->
+                <nav class="flex items-center bg-slate-100 p-1 rounded-xl gap-1">
+                    <button id="tab-flashcard" onclick="switchView('flashcard')" class="flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 bg-white text-brand-600 shadow-sm">
+                        <i class="fa-solid fa-clone text-sm"></i>
+                        <span>플래시카드 모드</span>
+                    </button>
+                    <button id="tab-table" onclick="switchView('table')" class="flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 text-slate-600 hover:text-slate-900">
+                        <i class="fa-solid fa-table-list text-sm"></i>
+                        <span>전체 목록 보기</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+
+        <!-- Controls: Search Input & Korean Catalogue Selector -->
+        <section class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+            <!-- Search Bar in Korean -->
+            <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="검색어 입력 (영어, 한국어, 베트남어)..." 
+                       class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all">
+                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Categories Scroll Container in Korean -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none" id="categoryContainer">
+                <!-- Categories populated by JS in Korean -->
+            </div>
+        </section>
+
+        <!-- VIEW 1: FLASHCARD MODE -->
+        <section id="view-flashcard" class="flex-1 flex flex-col justify-between items-center max-w-2xl mx-auto w-full gap-6">
+            
+            <!-- Progress & Stats Bar in Korean -->
+            <div class="w-full flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-500 px-2">
+                <span id="cardProgress">카드 1 / 10</span>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleAutoPlay()" id="autoPlayBtn" class="flex items-center gap-1.5 px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 transition">
+                        <i class="fa-solid fa-play text-xs" id="autoPlayIcon"></i>
+                        <span id="autoPlayText">자동 넘김</span>
+                    </button>
+                    <button onclick="shuffleCards()" class="p-1.5 text-slate-500 hover:text-brand-600 rounded-lg hover:bg-slate-100 transition" title="카드 섞기">
+                        <i class="fa-solid fa-shuffle text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3D Flashcard Container -->
+            <div class="w-full perspective-1000 min-h-[340px] sm:min-h-[380px] flex">
+                <div id="flashcard" onclick="flipCard()" class="w-full cursor-pointer relative transform-style-3d transition-transform duration-500 rounded-3xl bg-white border border-slate-200 shadow-xl flex flex-col justify-between p-6 sm:p-8 select-none">
+                    
+                    <!-- FRONT SIDE (English Sentence & Phonetics) -->
+                    <div class="absolute inset-0 backface-hidden flex flex-col justify-between p-6 sm:p-8 bg-gradient-to-b from-white via-white to-slate-50/50 rounded-3xl">
+                        <!-- Top Bar inside Card -->
+                        <div class="flex items-center justify-between">
+                            <span id="cardCategoryFront" class="px-3 py-1 bg-brand-50 text-brand-600 rounded-full text-xs font-bold tracking-tight">
+                                1. 인사 및 작별 인사
+                            </span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="event.stopPropagation(); speakCurrentCard('en')" class="p-2.5 bg-brand-50 hover:bg-brand-100 text-brand-600 rounded-full transition shadow-sm active:scale-95" title="영어 음성 듣기">
+                                    <i class="fa-solid fa-volume-high text-base"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card Body Front -->
+                        <div class="my-auto text-center py-6">
+                            <h2 id="cardEnText" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug mb-3">
+                                How's it going?
+                            </h2>
+                            <p id="cardEnPronunciation" class="text-sm sm:text-base font-medium text-brand-600 font-mono bg-brand-50/80 inline-block px-3 py-1 rounded-lg">
+                                /haʊz ɪt ˈɡəʊɪŋ/
+                            </p>
+                        </div>
+
+                        <!-- Card Footer Front -->
+                        <div class="flex items-center justify-center gap-2 text-xs font-semibold text-slate-400 border-t border-slate-100 pt-4">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                            <span>카드를 클릭하여 한국어 및 베트남어 뜻 보기</span>
+                        </div>
+                    </div>
+
+                    <!-- BACK SIDE (Korean & Vietnamese Translation) -->
+                    <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col justify-between p-6 sm:p-8 bg-gradient-to-b from-slate-900 to-indigo-950 text-white rounded-3xl">
+                        <!-- Top Bar inside Card Back -->
+                        <div class="flex items-center justify-between">
+                            <span id="cardCategoryBack" class="px-3 py-1 bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 rounded-full text-xs font-bold tracking-tight">
+                                1. 인사 및 작별 인사
+                            </span>
+                            <span class="text-xs font-medium text-indigo-300">번역 및 발음</span>
+                        </div>
+
+                        <!-- Card Body Back -->
+                        <div class="my-auto space-y-5 py-2">
+                            <!-- Korean Section -->
+                            <div class="text-center space-y-1">
+                                <div class="flex items-center justify-center gap-2">
+                                    <span class="text-xs uppercase font-bold tracking-wider text-indigo-300">🇰🇷 한국어 (Korean)</span>
+                                    <button onclick="event.stopPropagation(); speakCurrentCard('ko')" class="text-indigo-300 hover:text-white p-1 rounded" title="한국어 음성 듣기">
+                                        <i class="fa-solid fa-volume-high text-xs"></i>
+                                    </button>
+                                </div>
+                                <p id="cardKoText" class="text-xl sm:text-2xl font-bold text-amber-300 font-sans">
+                                    어떻게 지내세요?
+                                </p>
+                                <p id="cardKoPronunciation" class="text-xs sm:text-sm text-indigo-200 font-mono italic">
+                                    (Eotteohge jinaeseyo?)
+                                </p>
+                            </div>
+
+                            <hr class="border-indigo-800/60 w-1/2 mx-auto">
+
+                            <!-- Vietnamese Section -->
+                            <div class="text-center space-y-1">
+                                <div class="text-xs uppercase font-bold tracking-wider text-indigo-300 flex items-center justify-center gap-1.5">
+                                    <span>🇻🇳 베트남어 (Vietnamese)</span>
+                                </div>
+                                <p id="cardViText" class="text-base sm:text-lg font-semibold text-white">
+                                    Dạo này thế nào? / Mọi chuyện sao rồi?
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer Back -->
+                        <div class="flex items-center justify-between text-xs font-medium text-indigo-300/80 border-t border-indigo-800/60 pt-4">
+                            <span id="cardContextBack" class="italic truncate max-w-[200px]">사용 상황: 일상적인 인사</span>
+                            <div class="flex items-center gap-1">
+                                <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                                <span>카드 뒤집기</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Navigation Controls in Korean -->
+            <div class="flex items-center justify-between w-full max-w-xs gap-4 mt-2">
+                <button onclick="prevCard()" class="flex-1 py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-2xl shadow-sm transition flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-chevron-left text-sm"></i>
+                    <span>이전</span>
+                </button>
+                <button onclick="nextCard()" class="flex-1 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2 active:scale-95">
+                    <span>다음</span>
+                    <i class="fa-solid fa-chevron-right text-sm"></i>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- VIEW 2: LOOKUP TABLE MODE -->
+        <section id="view-table" class="hidden flex-1 flex-col gap-4">
+            <!-- Table Info Bar -->
+            <div class="flex items-center justify-between px-1">
+                <p class="text-sm font-semibold text-slate-500" id="tableCountText">총 0개의 문장 표시 중</p>
+            </div>
+
+            <!-- Table Container -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex-1">
+                <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 text-xs uppercase font-bold text-slate-500 tracking-wider">
+                            <tr>
+                                <th class="py-3.5 px-4 sm:px-6">영어 표현 (English)</th>
+                                <th class="py-3.5 px-4 sm:px-6">한국어 뜻 및 발음 (Korean)</th>
+                                <th class="py-3.5 px-4 sm:px-6">베트남어 (Vietnamese)</th>
+                                <th class="py-3.5 px-4 sm:px-6 text-center">음성 듣기</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-100 text-sm font-medium text-slate-700">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer in Korean -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400 font-medium">
+            Everyday English Learning Tool • 3개국어 일상 영어 회화 학습 시스템 (영어 • 한국어 • 베트남어)
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // Database of Everyday English Sentences with Full Korean Descriptions
+        const DATA = [
+            // 1. 인사 및 작별 인사 (Greetings & Farewells)
+            { id: 1, cat: 'greetings', en: "How’s it going?", ipa: "/haʊz ɪt ˈɡəʊɪŋ/", vi: "Dạo này thế nào? / Mọi chuyện sao rồi?", ko: "어떻게 지내세요?", koIpa: "Eotteohge jinaeseyo?", context: "일상적인 인사" },
+            { id: 2, cat: 'greetings', en: "How have you been?", ipa: "/haʊ həv juː biːn/", vi: "Dạo này bạn thế nào rồi?", ko: "그동안 어떻게 지냈어요?", koIpa: "Geudongan eotteohge jinaesseoyo?", context: "오랜만에 만났을 때" },
+            { id: 3, cat: 'greetings', en: "What’s up?", ipa: "/wɒts ʌp/", vi: "Có chuyện gì thế? / Dạo này sao rồi?", ko: "무슨 일 있어요? / 요즘 어때?", koIpa: "Museun il isseoyo? / Yojeum eottae?", context: "친구끼리 편한 인사" },
+            { id: 4, cat: 'greetings', en: "Long time no see!", ipa: "/lɒŋ taɪm nəʊ siː/", vi: "Lâu rồi không gặp!", ko: "오랜만이에요!", koIpa: "Oraenmanieyo!", context: "오랜만에 만남" },
+            { id: 5, cat: 'greetings', en: "Good to see you!", ipa: "/ɡʊd tə siː juː/", vi: "Rất vui được gặp bạn!", ko: "만나서 반가워요!", koIpa: "Mannaseo bangawoyo!", context: "반가움을 표할 때" },
+            { id: 6, cat: 'greetings', en: "Have a nice day!", ipa: "/hæv ə naɪs deɪ/", vi: "Chúc bạn một ngày tốt lành!", ko: "좋은 하루 보내세요!", koIpa: "Joeun haru bonaeseyo!", context: "작별 인사" },
+            { id: 7, cat: 'greetings', en: "Catch you later!", ipa: "/kætʃ juː ˈleɪtər/", vi: "Hẹn gặp lại bạn sau nhé!", ko: "나중에 봐요!", koIpa: "Najunge bwayo!", context: "가벼운 작별 인사" },
+            { id: 8, cat: 'greetings', en: "Take care!", ipa: "/teɪk keər/", vi: "Bảo trọng / Giữ gìn sức khỏe nhé!", ko: "몸조심하세요! / 잘 지내세요!", koIpa: "Momjosimhaseyo! / Jal jinaeseyo!", context: "따뜻한 작별 인사" },
+
+            // 2. 감사 및 사과 (Thanks & Apologies)
+            { id: 9, cat: 'thanks', en: "Thanks a million!", ipa: "/θæŋks ə ˈmɪljən/", vi: "Cảm ơn bạn rất nhiều!", ko: "정말 감사합니다!", koIpa: "Jeongmal gamsahamnida!", context: "깊은 감사 표현" },
+            { id: 10, cat: 'thanks', en: "I really appreciate it.", ipa: "/aɪ ˈrɪəli əˈpriːʃieɪt ɪt/", vi: "Tôi thực sự ghi nhận/cảm ơn điều đó.", ko: "진심으로 감사드립니다.", koIpa: "Jinsimeuro gamsadeureimnida.", context: "정중한 감사" },
+            { id: 11, cat: 'thanks', en: "You’re welcome!", ipa: "/jʊər ˈwelkəm/", vi: "Không có gì đâu!", ko: "천만에요!", koIpa: "Cheonmaneyo!", context: "감사에 대한 답발" },
+            { id: 12, cat: 'thanks', en: "No problem!", ipa: "/nəʊ ˈprɒbləm/", vi: "Không sao đâu / Không có gì phải bận tâm.", ko: "괜찮아요!", koIpa: "Gwaenchanayo!", context: "편한 감사 대답" },
+            { id: 13, cat: 'thanks', en: "My pleasure!", ipa: "/maɪ ˈpleʒər/", vi: "Niềm vinh hạnh của tôi.", ko: "제 기쁨입니다.", koIpa: "Je gippeumimnida.", context: "격식 있는 감사 대답" },
+            { id: 14, cat: 'thanks', en: "I’m so sorry!", ipa: "/aɪm səʊ ˈsɒri/", vi: "Tôi rất xin lỗi!", ko: "정말 죄송합니다!", koIpa: "Jeongmal joesonghamnida!", context: "진심 어린 사과" },
+            { id: 15, cat: 'thanks', en: "My bad!", ipa: "/maɪ bæd/", vi: "Lỗi của tôi! (Dùng với bạn bè)", ko: "내 실수야!", koIpa: "Nae silsuya!", context: "가벼운 실수 사과" },
+            { id: 16, cat: 'thanks', en: "Never mind.", ipa: "/ˈnevər maɪnd/", vi: "Đừng bận tâm / Không sao đâu.", ko: "신경 쓰지 마세요.", koIpa: "Singyeong sseuji maseyo.", context: "상대방 안심시키기" },
+
+            // 3. 쇼핑 및 가격 (Shopping & Prices)
+            { id: 17, cat: 'shopping', en: "How much is this?", ipa: "/haʊ mʌtʃ ɪz ðɪs/", vi: "Cái này bao nhiêu tiền?", ko: "이거 얼마예요?", koIpa: "Igeo eolmayeyo?", context: "가격 문의" },
+            { id: 18, cat: 'shopping', en: "Can I try this on?", ipa: "/kæn aɪ traɪ ðɪs ɒn/", vi: "Tôi có thể thử cái này không?", ko: "이거 입어봐도 돼요?", koIpa: "Igeo ibeobwado dwaeyo?", context: "의류 착용 문의" },
+            { id: 19, cat: 'shopping', en: "Where is the fitting room?", ipa: "/weər ɪz ðə ˈfɪtɪŋ ruːm/", vi: "Phòng thử đồ ở đâu vậy?", ko: "탈의실이 어디예요?", koIpa: "Tal-yisiri eodiyeyo?", context: "탈의실 위치 문의" },
+            { id: 20, cat: 'shopping', en: "Do you have this in a different size?", ipa: "/duː juː hæv ðɪs ɪn ə ˈdɪfrənt saɪz/", vi: "Bạn có cái này size khác không?", ko: "다른 사이즈 있어요?", koIpa: "Dareun saeiju isseoyo?", context: "사이즈 문의" },
+            { id: 21, cat: 'shopping', en: "It’s a bit too expensive.", ipa: "/ɪts ə bɪt tuː ɪkˈspensɪv/", vi: "Cái này hơi đắt một chút.", ko: "조금 비싸네요.", koIpa: "Jogeum bissaneyo.", context: "가격 흥정" },
+            { id: 22, cat: 'shopping', en: "Can you give me a discount?", ipa: "/kæn juː ɡɪv miː ə ˈdɪskaʊnt/", vi: "Bạn có thể giảm giá cho tôi không?", ko: "깎아 주실 수 있나요?", koIpa: "Kkak-a jusil su innayo?", context: "할인 요청" },
+            { id: 23, cat: 'shopping', en: "I’ll take it.", ipa: "/aɪl teɪk ɪt/", vi: "Tôi sẽ lấy cái này.", ko: "이걸로 할게요.", koIpa: "Igeollo halgeyo?", context: "구매 결정" },
+            { id: 24, cat: 'shopping', en: "Can I pay by card?", ipa: "/kæn aɪ peɪ baɪ kɑːd/", vi: "Tôi trả bằng thẻ được không?", ko: "카드로 계산할 수 있나요?", koIpa: "Kadeuro gyesanhal su innayo?", context: "결제 방식 문의" },
+
+            // 4. 식당 및 음식 주문 (Dining Out & Cafe)
+            { id: 25, cat: 'dining', en: "A table for two, please.", ipa: "/ə ˈteɪbl fɔː tuː pliːz/", vi: "Cho tôi bàn dành cho 2 người.", ko: "2명 자리가 있나요?", koIpa: "Dumyeong jariga innayo?", context: "식당 입장" },
+            { id: 26, cat: 'dining', en: "Could I see the menu, please?", ipa: "/kʊd aɪ siː ðə ˈmenjuː pliːz/", vi: "Cho tôi xem thực đơn được không?", ko: "메뉴판 좀 주시겠어요?", koIpa: "Menyupan jom jusigesseoyo?", context: "메뉴판 요청" },
+            { id: 27, cat: 'dining', en: "I’d like to order...", ipa: "/aɪd laɪk tə ˈɔːdər/", vi: "Tôi muốn gọi món...", ko: "...로 주문할게요.", koIpa: "...ro jumunhalgeyo.", context: "음식 주문" },
+            { id: 28, cat: 'dining', en: "What do you recommend?", ipa: "/wɒt duː juː ˌrekəˈmend/", vi: "Bạn gợi ý món nào ngon?", ko: "어떤 메뉴를 추천하시나요?", koIpa: "Eotteon menyureul chucheonhasinayo?", context: "추천 메뉴 문의" },
+            { id: 29, cat: 'dining', en: "Is this dish spicy?", ipa: "/ɪz ðɪs dɪʃ ˈspaɪsi/", vi: "Món này có cay không?", ko: "이 음식 매워요?", koIpa: "I eumsik maewoyo?", context: "맵기 문의" },
+            { id: 30, cat: 'dining', en: "Could we get the bill, please?", ipa: "/kʊd wiː ɡet ðə bɪl pliːz/", vi: "Cho chúng tôi xin hóa đơn tính tiền.", ko: "계산서 좀 주시겠어요?", koIpa: "Gyesanseo jom jusigesseoyo?", context: "계산 요청" },
+            { id: 31, cat: 'dining', en: "Keep the change.", ipa: "/kiːp ðə tʃeɪndʒ/", vi: "Cứ giữ lại tiền thừa nhé.", ko: "잔돈은 가지세요.", koIpa: "Jandon-eun gajiseyo.", context: "팁 지급" },
+
+            // 5. 길 찾기 및 교통 (Asking Directions & Travel)
+            { id: 32, cat: 'directions', en: "Excuse me, where is the nearest ATM?", ipa: "/ɪkˈskjuːz miː weər ɪz ðə ˈnɪərɪst ˌeɪ tiː ˈem/", vi: "Xin lỗi, cây ATM gần nhất ở đâu?", ko: "실례지만, 가장 가까운 ATM이 어디예요?", koIpa: "Sillyejiman, gajang gakkaun ATM-i eodiyeyo?", context: "위치 문의" },
+            { id: 33, cat: 'directions', en: "How do I get to the airport?", ipa: "/haʊ duː aɪ ɡet tə ði ˈeəpɔːt/", vi: "Làm sao để tôi đi đến sân bay?", ko: "공항까지 어떻게 가나요?", koIpa: "Gonghangkkaji eotteohge ganayo?", context: "경로 문의" },
+            { id: 34, cat: 'directions', en: "Is it far from here?", ipa: "/ɪz ɪt fɑːr frəm hɪər/", vi: "Chỗ đó có xa đây không?", ko: "여기서 먼가요?", koIpa: "Yeogiseo meongayo?", context: "거리 문의" },
+            { id: 35, cat: 'directions', en: "How long does it take?", ipa: "/haʊ lɒŋ dʌz ɪt teɪk/", vi: "Mất bao lâu để đến đó?", ko: "얼마나 걸려요?", koIpa: "Eolmana geollyeoyo?", context: "소요 시간 문의" },
+            { id: 36, cat: 'directions', en: "Go straight, then turn left.", ipa: "/ɡəʊ streɪt ðen tɜːn left/", vi: "Đi thẳng, sau đó rẽ trái.", ko: "직진하시다가 좌회전하세요.", koIpa: "Jikjinhasidaga jwahoejeonhaseyo.", context: "길 안내" },
+            { id: 37, cat: 'directions', en: "I’m lost. Could you help me?", ipa: "/aɪm lɒst kʊd juː help miː/", vi: "Tôi bị lạc đường rồi. Bạn giúp tôi được không?", ko: "길을 잃었어요. 좀 도와주시겠어요?", koIpa: "Gireul ireosseoyo. Jom dowajusigesseoyo?", context: "도움 요청" },
+
+            // 6. 직장 및 업무 (Workplace & Office)
+            { id: 38, cat: 'workplace', en: "Are you free right now?", ipa: "/ɑːr juː friː raɪt naʊ/", vi: "Cậu có đang rảnh không?", ko: "지금 시간 있으세요?", koIpa: "Jigeum sigan isseuseyo?", context: "시간 문의" },
+            { id: 39, cat: 'workplace', en: "Could you give me a hand?", ipa: "/kʊd juː ɡɪv miː ə hænd/", vi: "Cậu phụ tôi một tay làm cái này được không?", ko: "이것 좀 도와주시겠어요?", koIpa: "Igeot jom dowajusigesseoyo?", context: "업무 도움 요청" },
+            { id: 40, cat: 'workplace', en: "I’m working on it.", ipa: "/aɪm ˈwɜːkɪŋ ɒn ɪt/", vi: "Tôi đang xử lý/làm việc đó đây.", ko: "지금 처리 중입니다.", koIpa: "Jigeum cheori jungimnida.", context: "진행 상황 보고" },
+            { id: 41, cat: 'workplace', en: "When is the deadline?", ipa: "/wen ɪz ðə ˈdedlaɪn/", vi: "Hạn chót là khi nào vậy?", ko: "마감이 언제예요?", koIpa: "Magami eonjeyeyo?", context: "마감일 문의" },
+            { id: 42, cat: 'workplace', en: "Let’s keep in touch.", ipa: "/lets kiːp ɪn tʌtʃ/", vi: "Giữ liên lạc nhé.", ko: "계속 연락하고 지내요.", koIpa: "Gyesok yeonrakhago jinaeyo.", context: "비즈니스 인사" },
+            { id: 43, cat: 'workplace', en: "Sorry to bother you.", ipa: "/ˈsɒri tə ˈbɒðər juː/", vi: "Xin lỗi vì đã làm phiền bạn.", ko: "방해해서 죄송합니다.", koIpa: "Banghaehaeseo joesonghamnida.", context: "대화 시 정중한 대화 개입" },
+
+            // 7. 비상 상황 및 문제 (Problems & Emergencies)
+            { id: 44, cat: 'problems', en: "I lost my phone.", ipa: "/aɪ lɒst maɪ fəʊn/", vi: "Tôi bị mất điện thoại rồi.", ko: "핸드폰을 잃어버렸어요.", koIpa: "Haendeupon-eul ireobeoryeosseoyo.", context: "분실 신고" },
+            { id: 45, cat: 'problems', en: "Can you help me, please?", ipa: "/kæn juː help miː pliːz/", vi: "Làm ơn giúp tôi với!", ko: "도와주세요!", koIpa: "Dowajuseyo!", context: "긴급 요청" },
+            { id: 46, cat: 'problems', en: "I don't feel well.", ipa: "/aɪ dəʊnt fiːl wel/", vi: "Tôi cảm thấy không được khỏe.", ko: "몸이 좀 안 좋아요.", koIpa: "Momi jom an joayo.", context: "건강 상태 말하기" },
+            { id: 47, cat: 'problems', en: "My phone battery is dead.", ipa: "/maɪ fəʊn ˈbætəri ɪz ded/", vi: "Điện thoại của tôi hết pin rồi.", ko: "핸드폰 배터리가 나갔어요.", koIpa: "Haendeupon baeteoriga nagasseoyo.", context: "일상 문제" },
+
+            // 8. 일상 대화 및 스몰톡 (Daily Life & Small Talk)
+            { id: 48, cat: 'smalltalk', en: "What are you up to?", ipa: "/wɒt ɑːr juː ʌp tuː/", vi: "Bạn đang định làm gì đấy?", ko: "뭐 하고 있어요?", koIpa: "Mweo hago isseoyo?", context: "근황 물어보기" },
+            { id: 49, cat: 'smalltalk', en: "I'm on my way.", ipa: "/aɪm ɒn maɪ weɪ/", vi: "Tôi đang trên đường đến đây.", ko: "가는 중이에요.", koIpa: "Ganeun jungieyo.", context: "이동 중 알림" },
+            { id: 50, cat: 'smalltalk', en: "Hold on a second.", ipa: "/həʊld ɒn ə ˈsekənd/", vi: "Chờ một chút nhé.", ko: "잠시만 기다려 주세요.", koIpa: "Jamsiman gidaryeo juseyo.", context: "잠시 대기" },
+            { id: 51, cat: 'smalltalk', en: "I'm starving!", ipa: "/aɪm stɑːvɪŋ/", vi: "Tôi đói cồn cào rồi!", ko: "배고파 죽겠어요!", koIpa: "Baegopa jukgesseoyo!", context: "배고픔 표현" },
+            { id: 52, cat: 'smalltalk', en: "Let's grab a bite to eat.", ipa: "/lets ɡræb ə baɪt tə iːt/", vi: "Đi kiếm gì đó ăn đi.", ko: "뭐 좀 먹으러 가요.", koIpa: "Mweo jom meogeureogayo.", context: "식사 제안" },
+            { id: 53, cat: 'smalltalk', en: "I’m exhausted.", ipa: "/aɪm ɪɡˈzɔːstɪd/", vi: "Tôi mệt kiệt sức rồi.", ko: "너무 피곤해요.", koIpa: "Neomu pigonhaeyo.", context: "피로 표현" },
+            { id: 54, cat: 'smalltalk', en: "It’s up to you.", ipa: "/ɪts ʌp tə juː/", vi: "Tùy bạn quyết định thôi.", ko: "당신에게 달렸어요.", koIpa: "Dangsinege dallyeosseoyo.", context: "선택 위임" },
+            { id: 55, cat: 'smalltalk', en: "Makes sense!", ipa: "/meɪks sens/", vi: "Hợp lý đấy!", ko: "일리가 있네요!", koIpa: "Illiga inneyo!", context: "동의 표현" }
+        ];
+
+        // Categories Map Fully Translated into Korean
+        const CATEGORIES = [
+            { id: 'all', name: '전체 보기', icon: 'fa-border-all' },
+            { id: 'greetings', name: '1. 인사 및 작별 인사', icon: 'fa-handshake' },
+            { id: 'thanks', name: '2. 감사 및 사과', icon: 'fa-heart' },
+            { id: 'shopping', name: '3. 쇼핑 및 가격', icon: 'fa-bag-shopping' },
+            { id: 'dining', name: '4. 식당 및 음식 주문', icon: 'fa-utensils' },
+            { id: 'directions', name: '5. 길 찾기 및 교통', icon: 'fa-compass' },
+            { id: 'workplace', name: '6. 직장 및 업무', icon: 'fa-briefcase' },
+            { id: 'problems', name: '7. 비상 상황 및 문제', icon: 'fa-triangle-exclamation' },
+            { id: 'smalltalk', name: '8. 일상 대화 및 스몰톡', icon: 'fa-comments' },
+        ];
+
+        // App State Variables
+        let activeCategory = 'all';
+        let searchQuery = '';
+        let currentFilteredList = [...DATA];
+        let currentCardIndex = 0;
+        let isFlipped = false;
+        let isAutoPlay = false;
+        let autoPlayInterval = null;
+        let currentView = 'flashcard'; // 'flashcard' or 'table'
+
+        // Web Speech API Synthesis Initialization
+        const synth = window.speechSynthesis;
+
+        // DOM Loaded Init
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategories();
+            filterData();
+            setupKeyboardNav();
+        });
+
+        // Render Categories Filters in Korean
+        function renderCategories() {
+            const container = document.getElementById('categoryContainer');
+            container.innerHTML = CATEGORIES.map(cat => `
+                <button onclick="selectCategory('${cat.id}')" 
+                        id="cat-btn-${cat.id}"
+                        class="px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 flex items-center gap-2
+                               ${activeCategory === cat.id ? 'bg-brand-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                    <i class="fa-solid ${cat.icon} text-[11px]"></i>
+                    <span>${cat.name}</span>
+                </button>
+            `).join('');
+        }
+
+        // Category Filter Trigger
+        function selectCategory(catId) {
+            activeCategory = catId;
+            renderCategories();
+            filterData();
+        }
+
+        // Search Handlers
+        function handleSearch() {
+            const val = document.getElementById('searchInput').value.trim();
+            searchQuery = val.toLowerCase();
+            document.getElementById('clearSearchBtn').classList.toggle('hidden', val === '');
+            filterData();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            filterData();
+        }
+
+        // Filter Logic
+        function filterData() {
+            currentFilteredList = DATA.filter(item => {
+                const matchCategory = activeCategory === 'all' || item.cat === activeCategory;
+                const matchSearch = searchQuery === '' || 
+                    item.en.toLowerCase().includes(searchQuery) ||
+                    item.vi.toLowerCase().includes(searchQuery) ||
+                    item.ko.toLowerCase().includes(searchQuery) ||
+                    item.koIpa.toLowerCase().includes(searchQuery);
+
+                return matchCategory && matchSearch;
+            });
+
+            currentCardIndex = 0;
+            isFlipped = false;
+            updateFlashcard();
+            renderTable();
+        }
+
+        // View Switcher (Flashcard <-> Table)
+        function switchView(view) {
+            currentView = view;
+            const tabFlashcard = document.getElementById('tab-flashcard');
+            const tabTable = document.getElementById('tab-table');
+            const viewFlashcard = document.getElementById('view-flashcard');
+            const viewTable = document.getElementById('view-table');
+
+            if (view === 'flashcard') {
+                tabFlashcard.className = "flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 bg-white text-brand-600 shadow-sm";
+                tabTable.className = "flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 text-slate-600 hover:text-slate-900";
+                viewFlashcard.classList.remove('hidden');
+                viewFlashcard.classList.add('flex');
+                viewTable.classList.add('hidden');
+                viewTable.classList.remove('flex');
+            } else {
+                tabTable.className = "flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 bg-white text-brand-600 shadow-sm";
+                tabFlashcard.className = "flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-200 text-slate-600 hover:text-slate-900";
+                viewTable.classList.remove('hidden');
+                viewTable.classList.add('flex');
+                viewFlashcard.classList.add('hidden');
+                viewFlashcard.classList.remove('flex');
+            }
+        }
+
+        /* --- FLASHCARD LOGIC --- */
+
+        function flipCard() {
+            const card = document.getElementById('flashcard');
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                card.classList.add('rotate-y-180');
+            } else {
+                card.classList.remove('rotate-y-180');
+            }
+        }
+
+        function updateFlashcard() {
+            const card = document.getElementById('flashcard');
+            
+            // Ensure card is flipped back to front when changing card data
+            isFlipped = false;
+            card.classList.remove('rotate-y-180');
+
+            if (currentFilteredList.length === 0) {
+                document.getElementById('cardEnText').innerText = "검색 결과가 없습니다.";
+                document.getElementById('cardEnPronunciation').innerText = "";
+                document.getElementById('cardViText').innerText = "다른 카테고리를 선택하거나 검색어를 변경해주세요.";
+                document.getElementById('cardKoText').innerText = "";
+                document.getElementById('cardKoPronunciation').innerText = "";
+                document.getElementById('cardProgress').innerText = "카드 0 / 0";
+                document.getElementById('cardCategoryFront').innerText = "해당 없음";
+                document.getElementById('cardCategoryBack').innerText = "해당 없음";
+                document.getElementById('cardContextBack').innerText = "";
+                return;
+            }
+
+            const item = currentFilteredList[currentCardIndex];
+            const catObj = CATEGORIES.find(c => c.id === item.cat);
+
+            document.getElementById('cardProgress').innerText = `카드 ${currentCardIndex + 1} / ${currentFilteredList.length}`;
+            document.getElementById('cardCategoryFront').innerText = catObj ? catObj.name : item.cat;
+            document.getElementById('cardCategoryBack').innerText = catObj ? catObj.name : item.cat;
+            
+            document.getElementById('cardEnText').innerText = item.en;
+            document.getElementById('cardEnPronunciation').innerText = item.ipa;
+            
+            document.getElementById('cardViText').innerText = item.vi;
+            document.getElementById('cardKoText').innerText = item.ko;
+            document.getElementById('cardKoPronunciation').innerText = `(${item.koIpa})`;
+            document.getElementById('cardContextBack').innerText = `사용 상황: ${item.context}`;
+        }
+
+        function nextCard() {
+            if (currentFilteredList.length === 0) return;
+            currentCardIndex = (currentCardIndex + 1) % currentFilteredList.length;
+            updateFlashcard();
+        }
+
+        function prevCard() {
+            if (currentFilteredList.length === 0) return;
+            currentCardIndex = (currentCardIndex - 1 + currentFilteredList.length) % currentFilteredList.length;
+            updateFlashcard();
+        }
+
+        function shuffleCards() {
+            if (currentFilteredList.length <= 1) return;
+            for (let i = currentFilteredList.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentFilteredList[i], currentFilteredList[j]] = [currentFilteredList[j], currentFilteredList[i]];
+            }
+            currentCardIndex = 0;
+            updateFlashcard();
+        }
+
+        function toggleAutoPlay() {
+            isAutoPlay = !isAutoPlay;
+            const icon = document.getElementById('autoPlayIcon');
+            const text = document.getElementById('autoPlayText');
+            const btn = document.getElementById('autoPlayBtn');
+
+            if (isAutoPlay) {
+                icon.className = "fa-solid fa-pause text-xs";
+                text.innerText = "자동 넘김 정지";
+                btn.className = "flex items-center gap-1.5 px-3 py-1 bg-brand-600 text-white rounded-lg transition font-semibold";
+                autoPlayInterval = setInterval(() => {
+                    if (!isFlipped) {
+                        flipCard();
+                    } else {
+                        nextCard();
+                    }
+                }, 3000);
+            } else {
+                icon.className = "fa-solid fa-play text-xs";
+                text.innerText = "자동 넘김";
+                btn.className = "flex items-center gap-1.5 px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 transition font-semibold";
+                clearInterval(autoPlayInterval);
+            }
+        }
+
+        /* --- TABLE LOOKUP LOGIC --- */
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            document.getElementById('tableCountText').innerText = `총 ${currentFilteredList.length}개의 문장 표시 중`;
+
+            if (currentFilteredList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="py-8 text-center text-slate-400 font-medium">
+                            검색 조건에 맞는 회화 표현이 없습니다.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = currentFilteredList.map((item, index) => `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-3.5 px-4 sm:px-6">
+                        <div class="font-bold text-slate-900 text-base">${escapeHtml(item.en)}</div>
+                        <div class="text-xs text-brand-600 font-mono mt-0.5">${item.ipa}</div>
+                    </td>
+                    <td class="py-3.5 px-4 sm:px-6">
+                        <div class="font-bold text-slate-900">${escapeHtml(item.ko)}</div>
+                        <div class="text-xs text-indigo-600 font-mono italic mt-0.5">발음: (${escapeHtml(item.koIpa)})</div>
+                    </td>
+                    <td class="py-3.5 px-4 sm:px-6 text-slate-700 font-medium">
+                        ${escapeHtml(item.vi)}
+                    </td>
+                    <td class="py-3.5 px-4 sm:px-6 text-center whitespace-nowrap">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="speakText('${escapeQuotes(item.en)}', 'en')" class="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition flex items-center gap-1" title="영어 음성 듣기">
+                                <i class="fa-solid fa-volume-high text-xs"></i> <span class="text-xs font-bold">영어</span>
+                            </button>
+                            <button onclick="speakText('${escapeQuotes(item.ko)}', 'ko')" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition flex items-center gap-1" title="한국어 음성 듣기">
+                                <i class="fa-solid fa-volume-high text-xs"></i> <span class="text-xs font-bold">한국어</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        /* --- TEXT TO SPEECH (TTS) LOGIC --- */
+
+        function speakCurrentCard(lang) {
+            if (currentFilteredList.length === 0) return;
+            const item = currentFilteredList[currentCardIndex];
+            if (lang === 'en') speakText(item.en, 'en');
+            if (lang === 'ko') speakText(item.ko, 'ko');
+        }
+
+        function speakText(text, lang) {
+            if (!('speechSynthesis' in window)) {
+                alert('사용 중인 브라우저가 음성 재생 기능을 지원하지 않습니다.');
+                return;
+            }
+
+            // Cancel any ongoing speech
+            synth.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9; // Slightly slower for clear listening
+
+            if (lang === 'en') {
+                utterance.lang = 'en-US';
+            } else if (lang === 'ko') {
+                utterance.lang = 'ko-KR';
+            }
+
+            synth.speak(utterance);
+        }
+
+        /* --- UTILS --- */
+
+        function setupKeyboardNav() {
+            document.addEventListener('keydown', (e) => {
+                if (currentView !== 'flashcard') return;
+                // Don't trigger shortcuts if user is typing in search input
+                if (document.activeElement.tagName === 'INPUT') return;
+
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    flipCard();
+                } else if (e.code === 'ArrowRight') {
+                    nextCard();
+                } else if (e.code === 'ArrowLeft') {
+                    prevCard();
+                }
+            });
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function escapeQuotes(str) {
+            return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+    </script>
+</body>
+</html>
